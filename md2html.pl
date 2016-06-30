@@ -11,18 +11,18 @@ undef $/; # slurp mode for all
 
 my $css_file = '' ;
 my $nocss ;
-my $auto ;
+my $stdout ;
 
 GetOptions(
     'css=s' => \$css_file, 
     'nocss' => \$nocss, 
-    'auto' => \$auto
+    'stdout' => \$stdout
 ) or print "&usage()";
 
 # md2html.pl in.md 
 # md2html.pl --css example.css input.md
 # md2html.pm --nocss input.md
-# md2html.pm --auto input.md (cree input.md.html)
+# md2html.pm --stdout input.md (ne crée pas input.md.html)
 
 my $html_begin = <<'HTMLBEGIN';
 <!DOCTYPE html>
@@ -157,7 +157,6 @@ a, a:visited {
     text-decoration: none;
 }
 
-</style>
 
 CSS
 
@@ -172,17 +171,20 @@ if ($css_file and -e $css_file) {
 
 while (<>) {
     # slurp mode enable with 'undef $/' before (see line 9)
-    my $fhout = \*STDOUT;
-    if ($auto and $ARGV ne '-') {
+    my $fhout;
+    if ($stdout!=1 and $ARGV ne '-') {
         open($fhout,">",$ARGV.'.html')
             or die "Impossible d'ouvrir '$ARGV.html' : $!";
+    } else {
+        $fhout = \*STDOUT;
     }
     print $fhout 
         $html_begin,
         $css_data,
         $html_middle,
-        markdown($_),
+            markdown($_),
         $html_end;
-    close($fhout);
+
+    close($fhout) if ($stdout!=1 and $ARGV ne '-') ;
 }
 
