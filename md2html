@@ -6,23 +6,27 @@ use Getopt::Long;
 use Pod::Usage;
 use Text::Markdown 'markdown';
 
-undef $/; # slurp mode for all
+undef $/; # slurp mode
 
 
-my $css_file = '' ;
-my $nocss ;
-my $stdout ;
+my $css_file = '';
+my $nocss = 0;
+my $force = 0;
+my $stdout = 0;
+my $man = 0;
+my $help = 0;
 
 GetOptions(
     'css=s' => \$css_file, 
     'nocss' => \$nocss, 
-    'stdout' => \$stdout
-) or print "&usage()";
+    'force' => \$force,
+    'stdout' => \$stdout,
+    'help|?' => \$help,
+    'man' => \$man,
+) or pod2usage(2);
 
-# md2html.pl in.md 
-# md2html.pl --css example.css input.md
-# md2html.pm --nocss input.md
-# md2html.pm --stdout input.md (ne crée pas input.md.html)
+pod2usage(1) if $help;
+pod2usage(-verbose => 2) if $man;
 
 my $html_begin = <<'HTMLBEGIN';
 <!DOCTYPE html>
@@ -41,6 +45,8 @@ HTMLMIDDLE
 my $html_end = <<'HTMLEND';
 </body>
 </html>
+
+
 HTMLEND
 
 my $css_data = <<'CSS';
@@ -164,27 +170,119 @@ CSS
 $css_data = '' if $nocss ;
 if ($css_file and -e $css_file) {
     open (my $cssf, "<", $css_file)
-        or die "Impossible d'ouvrir '$css_file' : $!";
+        or die "Can't open CSS file '$css_file' : $!";
     $css_data = <$cssf>; # slurp mode enable with 'undef $/' before
     close($cssf);
 }
 
 while (<>) {
     # slurp mode enable with 'undef $/' before (see line 9)
-    my $fhout;
-    if ($stdout!=1 and $ARGV ne '-') {
-        open($fhout,">",$ARGV.'.html')
-            or die "Impossible d'ouvrir '$ARGV.html' : $!";
-    } else {
-        $fhout = \*STDOUT;
-    }
-    print $fhout 
-        $html_begin,
-        $css_data,
-        $html_middle,
-            markdown($_),
-        $html_end;
 
-    close($fhout) if ($stdout!=1 and $ARGV ne '-') ;
+    my $write_file = ($stdout!=1 and $ARGV ne '-');
+    my $fhout;
+    
+    if ($write_file) {
+        my $html_file = $ARGV.'.html';
+        if (-e $html_file and $force!=1) {
+            warn "'$html_file' already exists (skip). Use '--force' or '--stdout'\n";
+            next;
+        }
+        open($fhout,">",$html_file)
+            or die "Can't open HTML file '$ARGV.html' : $!";
+        select $fhout;
+    }
+    print
+        $html_begin,
+        $css_data x !$nocss,
+        $html_middle,
+        markdown($_),
+        $html_end ;
+    close($fhout) if ($write_file) ;
 }
+
+__END__
+
+=pod
+
+=head1 NAME
+
+md2html - convert markdown file to html file 
+
+=head1 SYNOPSIS
+
+md2html [options] [file1 [file2 ...]]
+
+ Options:
+   -h --help            brief help message
+   -m --man             full documentation
+   -c --css             use a specific CSS file
+   -n --nocss           don't use defaut CSS file
+   -s --stdout          use STDOUT instead of creating a new file
+   -f --force           write HTML file, even if it already exists
+
+
+=head1 DESCRIPTION
+
+md2html converts markdown files and produces new HTML files using
+a defaut CSS style, appending F<.html> to each filename (with same
+path).
+ 
+
+=head1 OPTIONS
+
+=over 4
+
+=item B<--help>
+
+Print a brief help message.
+
+C<md2html --help>
+
+=item B<--man>
+
+Print the manual page.
+
+C<md2html --man>
+
+=item B<--css>
+
+Use a specific CSS file.
+
+C<md2html --css mycssfile.css path-to/myfile.md [myfile2.md...]>
+
+=item B<--nocss>
+
+Use a specific CSS file.
+
+C<md2html --nocss myfile.md [myfile2.md...]>
+
+=item B<--stdout>
+
+Don't create HTML file. Write to STDOUT.
+
+C<md2html --stdout myfile.md [myfile2.md...]>
+
+To create HTML file in another folder:
+
+C<< md2html --stdout path/myfile.md > other-path/myname.html >>
+
+
+=item B<--force>
+
+Don't skip markdown file when HTML file already exists.
+
+C<md2html --force myfile.md> write myfile.md.html
+even if it exists.
+
+=item STDIN
+
+md2html can read STDIN. If so, it writes to STDOUT.
+
+C<cat somefile | md2html [options]>
+
+C<< cat somefile | md2html [options] > myfile.html >>
+
+=back
+
+=cut
 
