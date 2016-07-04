@@ -210,12 +210,12 @@ md2html - convert markdown file to html file
 
 =head1 SYNOPSIS
 
-md2html [options] [file1 [file2 ...]]
+md2html [options] [<mdfile1> [<mdfile2> ...]]
 
  Options:
    -h --help            brief help message
    -m --man             full documentation
-   -c --css             use a specific CSS file
+   -c --css=<cssfile>   use a specific CSS file
    -n --nocss           don't use defaut CSS file
    -s --stdout          use STDOUT instead of creating a new file
    -f --force           write HTML file, even if it already exists
@@ -244,23 +244,23 @@ Print the manual page.
 
 C<md2html --man>
 
-=item B<--css>
+=item B<--css E<lt>cssfileE<gt>>
 
 Use a specific CSS file.
 
-C<md2html --css mycssfile.css path-to/myfile.md [myfile2.md...]>
+C<md2html --css mycssfile.css path-to/myfile.md myfile2.md>
 
 =item B<--nocss>
 
 Use a specific CSS file.
 
-C<md2html --nocss myfile.md [myfile2.md...]>
+C<md2html --nocss *.markdown>
 
 =item B<--stdout>
 
 Don't create HTML file. Write to STDOUT.
 
-C<md2html --stdout myfile.md [myfile2.md...]>
+C<md2html --stdout myfile.md>
 
 To create HTML file in another folder:
 
@@ -271,16 +271,16 @@ C<< md2html --stdout path/myfile.md > other-path/myname.html >>
 
 Don't skip markdown file when HTML file already exists.
 
-C<md2html --force myfile.md> write myfile.md.html
+C<md2html --force myfile.md> write F<myfile.md.html>
 even if it exists.
 
 =item STDIN
 
 md2html can read STDIN. If so, it writes to STDOUT.
 
-C<cat somefile | md2html [options]>
+C<cat somefile | md2html --nocss>
 
-C<< cat somefile | md2html [options] > myfile.html >>
+C<< cat somefile | md2html --css mycss.css > myfile.html >>
 
 =back
 
