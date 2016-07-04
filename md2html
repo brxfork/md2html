@@ -6,6 +6,7 @@ use Getopt::Long;
 use Pod::Usage;
 use Text::Markdown 'markdown';
 
+our $VERSION = "1.03";
 undef $/; # slurp mode
 
 
@@ -49,7 +50,16 @@ my $html_end = <<'HTMLEND';
 
 HTMLEND
 
-my $css_data = <<'CSS';
+my $css_data;
+if ($nocss) {
+    $css_data = '';
+} elsif ($css_file and -e $css_file) {
+    open (my $cssf, "<", $css_file)
+        or die "Can't open CSS file '$css_file' : $!";
+    $css_data = <$cssf>; # slurp mode enable with 'undef $/' before
+    close($cssf);
+} else {
+    $css_data = <<'DEFAULTCSS';
 @charset "utf-8";
 
 /**
@@ -164,15 +174,8 @@ a, a:visited {
 }
 
 
-CSS
+DEFAULTCSS
 
-
-$css_data = '' if $nocss ;
-if ($css_file and -e $css_file) {
-    open (my $cssf, "<", $css_file)
-        or die "Can't open CSS file '$css_file' : $!";
-    $css_data = <$cssf>; # slurp mode enable with 'undef $/' before
-    close($cssf);
 }
 
 while (<>) {
@@ -191,12 +194,7 @@ while (<>) {
             or die "Can't open HTML file '$ARGV.html' : $!";
         select $fhout;
     }
-    print
-        $html_begin,
-        $css_data x !$nocss,
-        $html_middle,
-        markdown($_),
-        $html_end ;
+    print $html_begin, $css_data x !$nocss, $html_middle, markdown($_), $html_end ;
     close($fhout) if ($write_file) ;
 }
 
