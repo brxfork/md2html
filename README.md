@@ -4,12 +4,12 @@ md2html - convert markdown file to html file
 
 # SYNOPSIS
 
-md2html \[options\] \[file1 \[file2 ...\]\]
+md2html \[options\] \[&lt;mdfile1> \[&lt;mdfile2> ...\]\]
 
     Options:
       -h --help            brief help message
       -m --man             full documentation
-      -c --css             use a specific CSS file
+      -c --css=<cssfile>   use a specific CSS file
       -n --nocss           don't use defaut CSS file
       -s --stdout          use STDOUT instead of creating a new file
       -f --force           write HTML file, even if it already exists
@@ -34,23 +34,23 @@ path).
 
     `md2html --man`
 
-- **--css**
+- **--css &lt;cssfile>**
 
     Use a specific CSS file.
 
-    `md2html --css mycssfile.css path-to/myfile.md [myfile2.md...]`
+    `md2html --css mycssfile.css path-to/myfile.md myfile2.md`
 
 - **--nocss**
 
     Use a specific CSS file.
 
-    `md2html --nocss myfile.md [myfile2.md...]`
+    `md2html --nocss *.markdown`
 
 - **--stdout**
 
     Don't create HTML file. Write to STDOUT.
 
-    `md2html --stdout myfile.md [myfile2.md...]`
+    `md2html --stdout myfile.md`
 
     To create HTML file in another folder:
 
@@ -60,13 +60,13 @@ path).
 
     Don't skip markdown file when HTML file already exists.
 
-    `md2html --force myfile.md` write myfile.md.html
+    `md2html --force myfile.md` write `myfile.md.html`
     even if it exists.
 
 - STDIN
 
     md2html can read STDIN. If so, it writes to STDOUT.
 
-    `cat somefile | md2html [options]`
+    `cat somefile | md2html --nocss`
 
-    `cat somefile | md2html [options] > myfile.html`
+    `cat somefile | md2html --css mycss.css > myfile.html`
