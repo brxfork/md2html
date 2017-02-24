@@ -33,6 +33,7 @@ my $html_begin = <<'HTMLBEGIN';
 <!DOCTYPE html>
 <html>
 <head>
+<meta charset="UTF-8">
 <style>
 HTMLBEGIN
 
