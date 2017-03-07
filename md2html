@@ -6,7 +6,7 @@ use Getopt::Long;
 use Pod::Usage;
 use Text::Markdown 'markdown';
 
-our $VERSION = "1.04444";
+our $VERSION = "1.05";
 undef $/; # slurp mode
 
 
